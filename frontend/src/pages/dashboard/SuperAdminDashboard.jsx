@@ -1,29 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import AuthContext from '../../context/AuthContext'; // Adjust path as needed
 import ManageAdmins from './ManageAdmins';
 import PendingPosts from './PendingPosts';
 import ReviewHistory from './ReviewHistory';
 import CreatePost from './CreatePost';
 
 const SuperAdminDashboard = () => {
+  const { user: contextUser, loading } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedInUser = JSON.parse(localStorage.getItem('user'));
+    // Don't run if still loading auth context
+    if (loading) return;
+
+    // Use user from AuthContext if available, otherwise fallback to localStorage
+    let loggedInUser = contextUser;
+    
+    if (!loggedInUser) {
+      try {
+        const storedUser = localStorage.getItem('user');
+        loggedInUser = storedUser ? JSON.parse(storedUser) : null;
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        loggedInUser = null;
+      }
+    }
+
     if (!loggedInUser || loggedInUser.role !== 'superadmin') {
       navigate('/login');
       return;
     }
+    
     setUser(loggedInUser);
-  }, [navigate]);
+  }, [contextUser, loading]); // Remove navigate from dependencies
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     navigate('/login');
   };
 
-  if (!user) return <div>Loading...</div>;
+  // Show loading state while checking auth
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -37,16 +63,16 @@ const SuperAdminDashboard = () => {
         <nav className="mt-6">
           <ul>
             <li className="px-4 py-2 hover:bg-gray-700">
-              <Link to="/dashboard" className="block">Dashboard</Link>
+              <Link to="/dashboard/superadmin" className="block">Dashboard</Link>
             </li>
             <li className="px-4 py-2 hover:bg-gray-700">
-              <Link to="/dashboard/admins" className="block">Manage Admins</Link>
+              <Link to="/dashboard/manage-admins" className="block">Manage Admins</Link>
             </li>
             <li className="px-4 py-2 hover:bg-gray-700">
-              <Link to="/dashboard/pending" className="block">Pending Posts</Link>
+              <Link to="/dashboard/pending-posts" className="block">Pending Posts</Link>
             </li>
             <li className="px-4 py-2 hover:bg-gray-700">
-              <Link to="/dashboard/history" className="block">Review History</Link>
+              <Link to="/dashboard/review-history" className="block">Review History</Link>
             </li>
             <li className="px-4 py-2 hover:bg-gray-700">
               <Link to="/dashboard/create" className="block">Create Post</Link>

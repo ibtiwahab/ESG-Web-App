@@ -25,27 +25,21 @@ const ManageAdmins = () => {
     try {
       setLoading(true);
       
-      // Get user data from localStorage for authentication
-      const userData = localStorage.getItem('user');
-      if (!userData) {
+      // Check if token exists
+      const token = localStorage.getItem('token');
+      if (!token) {
         setError('Authentication error. Please log in again.');
         setLoading(false);
         return;
       }
       
-      const parsedUser = JSON.parse(userData);
-      
       // Try different endpoint patterns since your API routes may vary
       let response;
       try {
-        response = await API.get('/admin/list', {
-          headers: { Authorization: `Bearer ${parsedUser.token}` },
-        });
+        response = await API.get('/admin/list');
       } catch (err) {
         console.log('First endpoint failed, trying alternative');
-        response = await API.get('/api/admin/list', {
-          headers: { Authorization: `Bearer ${parsedUser.token}` },
-        });
+        response = await API.get('/admin');
       }
       
       if (response && response.data) {
@@ -103,14 +97,12 @@ const ManageAdmins = () => {
     try {
       setSubmitting(true);
       
-      // Get user data from localStorage for authentication
-      const userData = localStorage.getItem('user');
-      if (!userData) {
+      // Check if token exists
+      const token = localStorage.getItem('token');
+      if (!token) {
         toast.error('Authentication error. Please log in again.');
         return;
       }
-      
-      const parsedUser = JSON.parse(userData);
       
       // Try different endpoint patterns
       let response;
@@ -119,17 +111,13 @@ const ManageAdmins = () => {
           name: newAdmin.name,
           email: newAdmin.email,
           password: newAdmin.password
-        }, {
-          headers: { Authorization: `Bearer ${parsedUser.token}` },
         });
       } catch (err) {
         console.log('First endpoint failed, trying alternative');
-        response = await API.post('/api/admin/create', {
+        response = await API.post('/admin', {
           name: newAdmin.name,
           email: newAdmin.email,
           password: newAdmin.password
-        }, {
-          headers: { Authorization: `Bearer ${parsedUser.token}` },
         });
       }
       
@@ -162,25 +150,19 @@ const ManageAdmins = () => {
     }
     
     try {
-      // Get user data from localStorage for authentication
-      const userData = localStorage.getItem('user');
-      if (!userData) {
+      // Check if token exists
+      const token = localStorage.getItem('token');
+      if (!token) {
         toast.error('Authentication error. Please log in again.');
         return;
       }
       
-      const parsedUser = JSON.parse(userData);
-      
       // Try different endpoint patterns
       try {
-        await API.delete(`/admin/${adminId}`, {
-          headers: { Authorization: `Bearer ${parsedUser.token}` },
-        });
+        await API.delete(`/admin/${adminId}`);
       } catch (err) {
         console.log('First endpoint failed, trying alternative');
-        await API.delete(`/api/admin/${adminId}`, {
-          headers: { Authorization: `Bearer ${parsedUser.token}` },
-        });
+        await API.delete(`/admin/delete/${adminId}`);
       }
       
       // Remove deleted admin from state

@@ -341,12 +341,7 @@ const PendingPosts = () => {
       <div className="bg-white p-6 rounded shadow">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center">
-            <button 
-              onClick={handleGoBack}
-              className="mr-4 text-blue-600 hover:text-blue-800"
-            >
-              ← Back
-            </button>
+            
             <h2 className="text-2xl font-bold">Pending Posts</h2>
           </div>
           <button 

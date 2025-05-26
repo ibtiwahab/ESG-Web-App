@@ -30,7 +30,7 @@ const Dashboard = () => {
         navigate('/dashboard/investor');
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading]); // Remove navigate from dependencies
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
